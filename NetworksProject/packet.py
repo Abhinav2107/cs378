@@ -19,4 +19,4 @@ class packet:
 		return self.count_down_to_reach
 
 	def packet_print(self):
-		print("{source_node : '" + str(self.source_node) + "' , destination_node : '" + str(self.destination_node) + "'")		
+		print("{source_node : '" + str(self.source_node) + "' \n destination_node : '" + str(self.destination_node) + "'}")		

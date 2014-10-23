@@ -1,5 +1,6 @@
 from node import *
 from distance_vector import *
+from protocols import *
 import math
 
 class simulator:
@@ -10,7 +11,7 @@ class simulator:
 	packet_list = []
 	clock = 0
 	clock_step = 0.1
-	processor = distance_vector()
+	processor = protocols()
 
 	def __init__(self):
 		node_count = 0
@@ -20,12 +21,12 @@ class simulator:
 			new_packet_list = []
 			for packets in self.packet_list:
 				if(packets.update_packet() == 0):
-					what_to_send = self.node_set[packets.destination_node].process_packet(packets)
-					n_packet_list = self.processor.create_packets(self.node_set[packets.destination_node],self.connection_set,what_to_send)
+					what_to_send = self.processor.get_protocol(packets.protocol).process_packet(self.node_set[packets.destination_node],packets)
+					n_packet_list = self.processor.get_protocol(packets.protocol).create_packets(self.node_set[packets.destination_node],self.connection_set,what_to_send)
 					new_packet_list = new_packet_list + n_packet_list
 
 			for keys, values in self.node_set.items():
-				n_packet_list = self.processor.create_packets(values,self.connection_set,values.update_node())
+				n_packet_list = self.processor.get_protocol(1).create_packets(values,self.connection_set,values.update_node())
 				new_packet_list = new_packet_list + n_packet_list
 
 			self.packet_list[:] = [x for  x in self.packet_list if x.count_down_to_reach > 0]
@@ -38,13 +39,11 @@ class simulator:
 	def get_coordinate(self,id):
 		return [0,0]
 
-	def add_node(self,node_name,type):
+	def add_node(self,node_name):
 		self.node_count += 1
-		processor = distance_vector()
 		new_node = node(self.node_count,
 			node_name,
-			self.get_coordinate(self.node_count),
-			processor)
+			self.get_coordinate(self.node_count))
 		self.node_set[node_name] = new_node
 
 	def add_connection(self,node1,node2,distance):
@@ -56,8 +55,8 @@ class simulator:
 				self.clock_step)
 			self.connection_set[(node1,node2)] = new_connection
 			self.connection_set[(node2,node1)] = new_connection
-			self.node_set[node1].add_connection(node2)
-			self.node_set[node2].add_connection(node1)
+			self.node_set[node1].add_connection(node2,distance)
+			self.node_set[node2].add_connection(node1,distance)
 		else:
 			print("Invalid Connection")
 
@@ -66,12 +65,12 @@ class simulator:
 			print(nodes.name + " : " + str(nodes.forwarding_table))
 
 sim = simulator()
-sim.add_node("n0",1)
-sim.add_node("n1",1)
-sim.add_node("n2",1)
-sim.add_node("n3",1)
+sim.add_node("n0")
+sim.add_node("n1")
+sim.add_node("n2")
+sim.add_node("n3")
 sim.add_connection("n0","n1",1)
-sim.add_connection("n0","n2",1)
+sim.add_connection("n0","n2",3)
 sim.add_connection("n1","n2",1)
 sim.add_connection("n2","n3",1)
 sim.initialise(10)

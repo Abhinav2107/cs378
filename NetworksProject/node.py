@@ -1,31 +1,28 @@
 class node:
 	processing_time = 0
-	max_update_limit = 50
+	max_update_limit = 1000
 
-	def __init__(self,id,name,position,processor):
+	def __init__(self,id,name,position):
 		self.id = id
 		self.name = name
 		self.position = position
-		self.processor = processor
 		self.forwarding_table = {}
 		self.forwarding_table[name] = [0,name]
 		self.count_to_update = 0
-		self.neighbours = []
+		self.neighbours = {}
 
-	def add_connection(self,node_name):
-		self.neighbours.append(node_name)
+	def add_connection(self,node_name,distance):
+		self.neighbours[node_name] = distance
+		self.forwarding_table[node_name] = [distance,node_name]
 
 	def process_packet(self,pckt):
-		print("node_process_packet")
 		return self.processor.process_packet(self.forwarding_table,pckt)
 
 	def update_node(self):
-		print("update_node")
-		print("" + self.name + " : " + str(len(self.forwarding_table.keys())))
-		self.count_to_update += 1
-		if(self.count_to_update == self.max_update_limit):
-			print("maxed_out")
-			self.count_to_update = 0
+		self.count_to_update -= 1
+		if(self.count_to_update ==  -1):
+			print("MEXED OUT")
+			self.count_to_update = self.max_update_limit
 			return self.forwarding_table.keys()
 		return []
 
