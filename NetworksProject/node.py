@@ -23,8 +23,8 @@ class node:
 		if(self.count_to_update ==  -1):
 			print("MEXED OUT")
 			self.count_to_update = self.max_update_limit
-			return self.forwarding_table.keys()
-		return []
+			return [self.name, self.forwarding_table.keys()]
+		return [self.name,[]]
 
 class connection:
 	id = 0

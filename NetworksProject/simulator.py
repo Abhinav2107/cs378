@@ -26,7 +26,7 @@ class simulator:
 					new_packet_list = new_packet_list + n_packet_list
 
 			for keys, values in self.node_set.items():
-				n_packet_list = self.processor.get_protocol(1).create_packets(values,self.connection_set,values.update_node())
+				n_packet_list = self.processor.get_protocol(2).create_packets(values,self.connection_set,values.update_node())
 				new_packet_list = new_packet_list + n_packet_list
 
 			self.packet_list[:] = [x for  x in self.packet_list if x.count_down_to_reach > 0]
