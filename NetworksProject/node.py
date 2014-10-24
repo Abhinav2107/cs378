@@ -21,7 +21,6 @@ class node:
 	def update_node(self):
 		self.count_to_update -= 1
 		if(self.count_to_update ==  -1):
-			print("MEXED OUT")
 			self.count_to_update = self.max_update_limit
 			return [self.name, self.forwarding_table.keys()]
 		return [self.name,[]]
