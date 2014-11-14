@@ -1,37 +1,64 @@
-class node:
-	processing_time = 0
-	max_update_limit = 1000
+def prefix_match(ip, ip_prefix):
+    if ip_prefix == None:
+        return False
+    ip_prefix = ip_prefix.split("/")
+    if ip_mask_to_network(ip_prefix[0], ip_prefix[1]) == ip_mask_to_network(ip, ip_prefix[1]):
+        return True
+    return False
 
-	def __init__(self,id,name,position):
-		self.id = id
-		self.name = name
-		self.position = position
-		self.forwarding_table = {}
-		self.forwarding_table[name] = [0,name]
-		self.count_to_update = 0
-		self.neighbours = {}
 
-	def add_connection(self,node_name,distance):
-		self.neighbours[node_name] = distance
-		self.forwarding_table[node_name] = [distance,node_name]
+def ip_mask_to_network(ip, mask):
+    ip_parts = [int(_) for _ in ip.split(".")]
+    binary = ""
+    for part in ip_parts:
+        b = bin(part)[2:]
+        binary += "0"*(8-len(b))
+        binary += b
+    return binary[:int(mask)]
 
-	def process_packet(self,pckt):
-		return self.processor.process_packet(self.forwarding_table,pckt)
+class Node:
 
-	def update_node(self):
-		self.count_to_update -= 1
-		if(self.count_to_update ==  -1):
-			self.count_to_update = self.max_update_limit
-			return [self.name, self.forwarding_table.keys()]
-		return [self.name,[]]
+    processing_time = 0
+    max_update_limit = 1000
 
-class connection:
-	id = 0
-	nodes = []
-	distance = 0
-	clock_step = 0
-	def __init__(self,id,nodes,distance,clock_step):
-		self.id = id
-		self.nodes = nodes
-		self.distance = distance
-		self.clock_step = clock_step
+    def __init__(self,simulator,name,position,ip_prefix):
+        self.simulator = simulator
+        self.name = name
+        self.position = position
+        self.forwarding_table = dict()
+        self.forwarding_table[ip_prefix] = (self, 0)
+        self.count_to_update = 0
+        self.neighbours = {}
+        self.hosts = dict()
+        self.ip_prefix = ip_prefix
+
+    def add_connection(self,node_name,cost):
+        self.neighbours[node_name] = cost
+
+    def add_host(self, host):
+        self.hosts[host.ip] = host
+
+    def process_packet(self, packet):
+        if packet.dst_type == "Node" and packet.dst == self.name:
+            print(self.name + "Received Packet from " + packet.src)
+        elif packet.dst_type == "Host":
+            if packet.dst in self.hosts:
+                self.deliver(packet)
+            else:    
+                self.forward(packet)
+
+    def deliver(self, packet):
+        packet.link_src = self.name
+        packet.link_dst = self.hosts[packet.dst]
+        packet.cost = 1
+        self.simulator.put_packet(packet)
+
+    def forward(self, packet):
+        for ip_prefix in self.forwarding_table:
+            if prefix_match(packet.dst, ip_prefix):
+                packet.link_src = self.name
+                packet.link_dst = self.forwarding_table[ip_prefix][0]
+                packet.cost = self.forwarding_table[ip_prefix][1]
+                self.simulator.put_packet(packet)
+                return
+
