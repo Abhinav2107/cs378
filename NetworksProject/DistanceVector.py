@@ -24,7 +24,7 @@ class DistanceVector:
                         node.forwarding_table[info[0]] = (packet.link_src, cost)
                         data.append((info[0], cost))
 
-        for neighbour, cost in node.neighbours.iteritems():
+        for neighbour, cost in node.neighbours.items():
             data_to_send = []
             for info in data:
                 if node.forwarding_table[info[0]][0] == neighbour:
@@ -42,10 +42,10 @@ class DistanceVector:
         self.count += 1
         if self.count >= DistanceVector.period:
             self.count = 0
-            for name, node in self.simulator.nodes.iteritems():
-                for neighbour, cost in node.neighbours.iteritems():
+            for name, node in self.simulator.nodes.items():
+                for neighbour, cost in node.neighbours.items():
                     data = []
-                    for ip_prefix, dv in node.forwarding_table.iteritems():
+                    for ip_prefix, dv in node.forwarding_table.items():
                         if dv[0] == neighbour:
                             if self.split_horizon and self.poison_reverse:
                                 data.append((ip_prefix, DistanceVector.infinity))

@@ -17,7 +17,7 @@ sim.step()
 sim.step()
 sim.step()
 sim.put_packet(packet)
-for name, node in sim.nodes.iteritems():
+for name, node in sim.nodes.items():
     print(node.forwarding_table)
 sim.step()
 sim.step()
