@@ -53,3 +53,8 @@ class Simulator:
     def set_routing_protocol(self, protocol):
         if protocol[0] == "Distance Vector":
             self.routing = DistanceVector(self, protocol[1], protocol[2])
+
+    def error(self, node, msg, packet):
+        data = (msg, packet)
+        icmp = Packet("Node", packet.src_type, node.name, packet.src, None, None, "ICMP", 64, None, data)
+        node.process_packet(icmp) 

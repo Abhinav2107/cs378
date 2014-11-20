@@ -1,5 +1,6 @@
 from Simulator import *
 from SimulatorPlotter import *
+import sys
 
 sim = Simulator()
 sim.add_node("n1", (1, 1), "1.1.1.0/24")
@@ -11,7 +12,7 @@ sim.add_host("1.1.1.1", "n1", (2, 2))
 sim.add_host("3.3.3.3", "n3", (5, 3))
 sim.set_routing_protocol(("Distance Vector", False, False))
 
-packet = Packet("Host", "Host", "1.1.1.1", "3.3.3.3", "1.1.1.1", "n1", "UDP", 100, 1, "blah")
+packet = Packet("Host", "Host", "1.1.1.1", "3.3.3.3", "1.1.1.1", "n1", "UDP", 2, 1, "blah")
 sim.step()
 sim.step()
 sim.step()
@@ -25,6 +26,6 @@ sim.step()
 sim.step()
 sim.step()
 sim.step()
-
-gui = Gui(sim)
-gui.start()
+if not ( len(sys.argv) > 1 and sys.argv[1] == "--no-gui" ):
+    gui = Gui(sim)
+    gui.start()

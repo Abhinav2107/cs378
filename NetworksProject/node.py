@@ -42,7 +42,7 @@ class Node:
 
     def process_packet(self, packet):
         if packet.dst_type == "Node" and packet.dst == self.name:
-            print(self.name + " Received Packet from " + packet.src)
+            print(self.name + " Received " + packet.protocol + " Packet from " + packet.src)
             if packet.protocol == "Distance Vector":
                 self.simulator.routing.process_packet(packet)
 
@@ -51,13 +51,18 @@ class Node:
                 self.deliver(packet)
             elif not prefix_match(packet.dst, self.ip_prefix):    
                 self.forward(packet)
+            else:
+                self.simulator.error(self, "Host Unreachable", packet)
 
     def deliver(self, packet):
         packet.link_src = self.name
         packet.link_dst = packet.dst
         packet.cost = 1
-        print(self.name + " Delivering Packet to " + packet.dst)
-        self.simulator.put_packet(packet)
+        if packet.ttl < packet.cost:
+            self.simulator.error(self, "TTL Expired in Transit", packet)
+        else:
+            print(self.name + " Delivering Packet to " + packet.dst)
+            self.simulator.put_packet(packet)
 
     def forward(self, packet):
         for ip_prefix in self.forwarding_table:
@@ -65,7 +70,11 @@ class Node:
                 packet.link_src = self.name
                 packet.link_dst = self.forwarding_table[ip_prefix][0]
                 packet.cost = self.neighbours[packet.link_dst]
-                print(self.name + " Forwarding Packet for " + packet.dst + " to " + packet.link_dst)
-                self.simulator.put_packet(packet)
+                if packet.ttl < packet.cost:
+                    self.simulator.error(self, "TTL Expired in Transit", packet)
+                else:
+                    print(self.name + " Forwarding Packet for " + packet.dst + " to " + packet.link_dst)
+                    self.simulator.put_packet(packet)
                 return
+        self.simulator.error(self, "Network Unreachable", packet)
 

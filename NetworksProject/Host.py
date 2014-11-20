@@ -10,4 +10,7 @@ class Host:
         self.position = position
 
     def process_packet(self, packet):
-        print(self.ip + " received packet from " + packet.src)
+        toPrint = self.ip + " received " + packet.protocol + " packet from " + packet.src
+        if packet.protocol == "ICMP":
+            toPrint = self.ip + " received " + packet.protocol + " packet with message \"" + packet.data[0] + "\" from " + packet.src
+        print(toPrint)
