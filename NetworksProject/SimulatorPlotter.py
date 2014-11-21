@@ -3,6 +3,7 @@ from TraceRoute import *
 
 class NodeInformation(tk.Frame):
 	width = 600
+
 	def __init__(self, master=None):
 		tk.Frame.__init__(self, master)
 		self.pack()
@@ -11,6 +12,7 @@ class NodeInformation(tk.Frame):
 	def create_widgets(self):
 		self.canvas = tk.Canvas(self, width=self.width, height=450)
 		self.canvas.pack()
+		
 
 	def create_data(self,node_forwarding_table,node_type):
 		self.canvas.delete("all")
@@ -63,7 +65,9 @@ class Application(tk.Frame):
 	line_color = "#263238"
 	connection_color = "#90A4AE"
 	focused = None
-
+	entrytext_src_ip = ""
+	entrytext_dst_ip = ""
+	
 	def is_click_in(self,position,click):
 		px = int(position[0])
 		py = int(position[1])
@@ -93,12 +97,22 @@ class Application(tk.Frame):
 		self.step= tk.Button(self)
 		self.step["text"] = "STEP"
 		self.step["command"] = self.step_simulation
-		self.step.pack(side="left")
+		self.step.pack()
 
 		self.step= tk.Button(self)
 		self.step["text"] = "SHOW ALL PACKETS"
 		self.step["command"] = self.show_all_packets
-		self.step.pack(side="left")
+		self.step.pack()
+
+		label_src_ip = tk.Label(self, text='Source IP')
+		label_src_ip.pack(side="left")
+
+		self.entry_src_ip = tk.Entry(self, textvariable=self.entrytext_src_ip)
+		self.entry_src_ip.pack(side="left")
+		self.label_dst_ip = tk.Label(self, text='Destination IP')
+		self.label_dst_ip.pack(side="left")
+		self.entry_dst_ip = tk.Entry(self, textvariable=self.entrytext_dst_ip)
+		self.entry_dst_ip.pack(side="left")
 
 		self.step= tk.Button(self)
 		self.step["text"] = "TRACE ROUTE"
@@ -130,6 +144,7 @@ class Application(tk.Frame):
 					fill=self.connection_color,
 					width="0.0"
 					)
+				self.canvas.create_text(cx,cy,text=cost,fill="#ffffff")
 				self.callback_position[(keys,neighbour)] = (cx,cy,self.small_circle_radius,"CONNECTION")
 
 		for keys,node in self.sim.nodes.items():
@@ -177,8 +192,9 @@ class Application(tk.Frame):
 		self.node_info.show_node_info(self.focused[0],self.focused[1],self.focused[2])
 
 	def start_traceroute(self):
-		start_ip = input("Please Input The Start IP\n")
-		end_ip = input("Please Input The End IP\n")
+		start_ip = self.entry_src_ip.get()
+		end_ip = self.entry_dst_ip.get()
+		print(start_ip + " -> " + end_ip)
 		host_obj = None
 		for keys,node in self.sim.nodes.items():
 			if(start_ip in node.hosts.keys()):
