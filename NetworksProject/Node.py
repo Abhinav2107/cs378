@@ -40,6 +40,9 @@ class Node:
         #    self.forwarding_table[self.simulator.nodes[node_name].ip_prefix] = (node_name, cost)
 
     def update_connection(self, node_name, cost):
+        if node_name not in self.neighbours:
+            self.add_connection(node_name, cost)
+            return
         old_cost = self.neighbours[node_name]
         self.neighbours[node_name] = cost
         self.routing.update_connection(self.name, node_name, old_cost)
