@@ -2,6 +2,7 @@ from Node import *
 from Host import *
 from Packet import *
 from DistanceVector import *
+from LinkState import *
 
 class Simulator:
     
@@ -13,7 +14,11 @@ class Simulator:
         self.routing = None
 
     def step(self):
-        self.routing.poll_periodic_update()
+        if self.routing == "Link State":
+            for node_name, node in self.nodes.items():
+                node.routing.poll_periodic_update()
+        else:    
+            self.routing.poll_periodic_update()
         self.packets = self.packets + self.new_packets
         self.new_packets = []
         for packet in self.packets:
@@ -36,6 +41,8 @@ class Simulator:
 
     def add_node(self, name, position, ip_prefix):
         node = Node(self, name, position, ip_prefix)
+        if self.routing == "Link State":
+            node.routing = LinkState(self, node)
         self.nodes[name] = node
         return node
 
@@ -57,6 +64,8 @@ class Simulator:
     def set_routing_protocol(self, protocol):
         if protocol[0] == "Distance Vector":
             self.routing = DistanceVector(self, protocol[1], protocol[2])
+        if protocol[0] == "Link State":
+            self.routing = "Link State"
 
     def error(self, node, msg, packet):
         if packet.protocol == "ICMP":

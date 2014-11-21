@@ -5,7 +5,7 @@ import sys
 
 sim = Simulator()
 
-sim.set_routing_protocol(("Distance Vector", False, False))
+sim.set_routing_protocol(("Link State", False, False))
 sim.add_node("n1", (1, 1), "1.1.1.0/24")
 sim.add_node("n2", (3, 1), "2.2.2.0/24")
 sim.add_node("n3", (5, 1), "3.3.3.0/24")
