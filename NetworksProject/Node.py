@@ -31,11 +31,18 @@ class Node:
         self.neighbours = {}
         self.hosts = dict()
         self.ip_prefix = ip_prefix
+        self.routing = simulator.routing
 
     def add_connection(self,node_name,cost):
         self.neighbours[node_name] = cost
-        if self.simulator.nodes[node_name].ip_prefix is not None:
-            self.forwarding_table[self.simulator.nodes[node_name].ip_prefix] = (node_name, cost)
+        self.routing.update_connection(self.name, node_name, float("+inf"))
+        #if self.simulator.nodes[node_name].ip_prefix is not None:
+        #    self.forwarding_table[self.simulator.nodes[node_name].ip_prefix] = (node_name, cost)
+
+    def update_connection(self, node_name, cost):
+        old_cost = self.neighbours[node_name]
+        self.neighbours[node_name] = cost
+        self.routing.update_connection(self.name, node_name, old_cost)
 
     def add_host(self, host):
         self.hosts[host.ip] = host
@@ -44,7 +51,7 @@ class Node:
         if packet.dst_type == "Node" and packet.dst == self.name:
             print(self.name + " Received " + packet.protocol + " Packet from " + packet.src)
             if packet.protocol == "Distance Vector":
-                self.simulator.routing.process_packet(packet)
+                self.routing.process_packet(packet)
 
         elif packet.dst_type == "Host":
             if packet.dst in self.hosts:
@@ -77,4 +84,3 @@ class Node:
                     self.simulator.put_packet(packet)
                 return
         self.simulator.error(self, "Network Unreachable", packet)
-

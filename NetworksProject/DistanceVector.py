@@ -16,9 +16,9 @@ class DistanceVector:
         node = self.simulator.nodes[packet.link_dst]
         data = []
         for info in packet.data:
-            if info[0] not in node.forwarding_table or info[1] < node.forwarding_table[info[0]][1] or (node.forwarding_table[info[0]][0] == packet.link_src and node.forwarding_table[info[0]][1] > node.neighbours[packet.link_src] + info[1]):
+            if info[0] not in node.forwarding_table or info[1] < node.forwarding_table[info[0]][1] or node.forwarding_table[info[0]][0] == packet.link_src:
                     cost = node.neighbours[packet.link_src] + info[1]
-                    if cost > DistanceVector.infinity:
+                    if cost > DistanceVector.infinity and info[0] in node.forwarding_table:
                         node.forwarding_table.pop(info[0])
                     else:
                         node.forwarding_table[info[0]] = (packet.link_src, cost)
@@ -56,4 +56,25 @@ class DistanceVector:
                     if len(data) > 0:
                         packet = Packet("Node", "Node", name, neighbour, name, neighbour, "Distance Vector", cost+1, cost, data)
                         self.simulator.put_packet(packet)
-            
+    
+    def update_connection(self, n1, n2, old_cost):
+        if old_cost >= DistanceVector.infinity:
+            return
+        data = []
+        node = self.simulator.nodes[n1]
+        to_pop = []
+        for ip_prefix, (next_hop, cost) in node.forwarding_table.items():
+            if next_hop == n2:
+                new_cost = cost + node.neighbours[n2] - old_cost
+                node.forwarding_table[ip_prefix] = (next_hop, new_cost)
+                if new_cost >= DistanceVector.infinity:
+                    to_pop.append(ip_prefix)
+                data.append((ip_prefix, new_cost))
+        for ip_prefix in to_pop:
+            node.forwarding_table.pop(ip_prefix)
+        for neighbour, cost in node.neighbours.items():
+            if neighbour != n2 or (not self.split_horizon):
+                packet = Packet("Node", "Node", n1, neighbour, n1, neighbour, "Distance Vector", cost+1, cost, data)
+                self.simulator.put_packet(packet)
+        if node.neighbours[n2] >= DistanceVector.infinity:  
+            node.neighbours.pop(n2)

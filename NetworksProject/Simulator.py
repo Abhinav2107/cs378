@@ -50,6 +50,10 @@ class Simulator:
         self.nodes[n1].add_connection(n2, cost)
         self.nodes[n2].add_connection(n1, cost) 
 
+    def update_connection(self, n1, n2, cost):
+        self.nodes[n1].update_connection(n2, cost)
+        self.nodes[n2].update_connection(n1, cost)
+
     def set_routing_protocol(self, protocol):
         if protocol[0] == "Distance Vector":
             self.routing = DistanceVector(self, protocol[1], protocol[2])
