@@ -32,6 +32,7 @@ class TraceRoute(Application):
             self.path.append(self.target)
             self.done = True
         elif (packet.protocol == "ICMP" and (packet.data[0] == "Network Unreachable" or packet.data[0] == "Host Unreachable")):
+            self.path.append(packet.src)
             self.path.append("Target " + self.target  + " Unreachable")
             self.done = True
 
