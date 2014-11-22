@@ -33,17 +33,11 @@ class Node:
         self.ip_prefix = ip_prefix
         self.routing = simulator.routing
 
-    def add_connection(self,node_name,cost):
-        self.neighbours[node_name] = cost
-        self.routing.update_connection(self.name, node_name, float("+inf"))
-        #if self.simulator.nodes[node_name].ip_prefix is not None:
-        #    self.forwarding_table[self.simulator.nodes[node_name].ip_prefix] = (node_name, cost)
-
     def update_connection(self, node_name, cost):
         if node_name not in self.neighbours:
-            self.add_connection(node_name, cost)
-            return
-        old_cost = self.neighbours[node_name]
+            old_cost = float("+inf")
+        else:
+            old_cost = self.neighbours[node_name]
         self.neighbours[node_name] = cost
         self.routing.update_connection(self.name, node_name, old_cost)
 
@@ -51,9 +45,9 @@ class Node:
         self.hosts[host.ip] = host
 
     def process_packet(self, packet):
-        if packet.dst_type == "Node" and packet.dst == self.name:
+        if packet.dst_type == "Node" and packet.dst == self.name and packet.link_src in self.neighbours:
             print(self.name + " Received " + packet.protocol + " Packet from " + packet.src)
-            if packet.protocol == "Distance Vector":
+            if packet.protocol == "Distance Vector" or packet.protocol == "Link State":
                 self.routing.process_packet(packet)
 
         elif packet.dst_type == "Host":

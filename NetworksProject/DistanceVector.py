@@ -72,9 +72,10 @@ class DistanceVector:
                 data.append((ip_prefix, new_cost))
         for ip_prefix in to_pop:
             node.forwarding_table.pop(ip_prefix)
+        if node.neighbours[n2] >= DistanceVector.infinity:  
+            node.neighbours.pop(n2)
         for neighbour, cost in node.neighbours.items():
             if neighbour != n2 or (not self.split_horizon):
                 packet = Packet("Node", "Node", n1, neighbour, n1, neighbour, "Distance Vector", cost+1, cost, data)
                 self.simulator.put_packet(packet)
-        if node.neighbours[n2] >= DistanceVector.infinity:  
-            node.neighbours.pop(n2)
+

@@ -1,5 +1,6 @@
 from Application import *
 from Packet import *
+import sys
 
 class TraceRoute(Application):
 
@@ -13,7 +14,7 @@ class TraceRoute(Application):
 
     def trace(self, target):
         if not self.done:
-            print("[ERROR] Another trace already in progress!")
+            print("[ERROR] Another trace already in progress!", file=sys.stderr)
         self.done = False
         self.path = [self.host.ip]
         self.target = target
@@ -31,10 +32,12 @@ class TraceRoute(Application):
         elif (packet.protocol == "ICMP" and packet.data[0] == "Port Unreachable") or (packet.protocol == "UDP" and packet.src == self.target):
             self.path.append(self.target)
             self.done = True
+            self.print()
         elif (packet.protocol == "ICMP" and (packet.data[0] == "Network Unreachable" or packet.data[0] == "Host Unreachable")):
             self.path.append(packet.src)
             self.path.append("Target " + self.target  + " Unreachable")
             self.done = True
+            self.print()
 
     def print(self):
         print("\n=== TraceRoute ===\n")

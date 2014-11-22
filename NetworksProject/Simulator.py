@@ -3,6 +3,7 @@ from Host import *
 from Packet import *
 from DistanceVector import *
 from LinkState import *
+import sys
 
 class Simulator:
     
@@ -40,6 +41,12 @@ class Simulator:
         self.new_packets.append(packet)
 
     def add_node(self, name, position, ip_prefix):
+        if self.routing is None:
+            print("[ERROR] Set routing protocol before adding nodes", file=sys.stderr)
+            return None 
+        if name in self.nodes:
+            print("[ERROR] Node already exists", file=sys.stderr)
+            return self.nodes[name]
         node = Node(self, name, position, ip_prefix)
         if self.routing == "Link State":
             node.routing = LinkState(self, node)
@@ -51,13 +58,16 @@ class Simulator:
             host = Host(self, ip, node, position)
             self.nodes[node].add_host(host)
             return host
+        print("[ERROR] Invalid Node or IP", file=sys.stderr)
         return None
     
     def add_connection(self, n1, n2, cost):
-        self.nodes[n1].add_connection(n2, cost)
-        self.nodes[n2].add_connection(n1, cost) 
+        self.update_connection(n1, n2, cost)
 
     def update_connection(self, n1, n2, cost):
+        if n1 not in self.nodes or n2 not in self.nodes:
+            print("[ERROR] Invalid Node(s)", file=sys.stderr)
+            return
         self.nodes[n1].update_connection(n2, cost)
         self.nodes[n2].update_connection(n1, cost)
 

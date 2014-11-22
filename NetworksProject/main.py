@@ -5,7 +5,7 @@ import sys
 
 sim = Simulator()
 
-sim.set_routing_protocol(("Link State", False, False))
+sim.set_routing_protocol(("Distance Vector", False, False))
 sim.add_node("n1", (1, 1), "1.1.1.0/24")
 sim.add_node("n2", (3, 1), "2.2.2.0/24")
 sim.add_node("n3", (5, 1), "3.3.3.0/24")
@@ -28,7 +28,7 @@ tr = TraceRoute(h, "TraceRoute")
 tr.trace("3.3.3.3")
 while not tr.done:
     sim.step()
-tr.print()
+#tr.print()
 sim.update_connection("n2", "n3", 100)
 for i in range(10):
     sim.step()
