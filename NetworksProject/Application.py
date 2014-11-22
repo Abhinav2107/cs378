@@ -6,7 +6,7 @@ class Application:
         self.host = host
         self.name = name
         self.protocols = protocols
-        if port is None:
+        if port is None:  # Choose a random port if one is not provided
             self.port = random.randint(10000, 65535)
         else:
             self.port = port

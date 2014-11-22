@@ -15,15 +15,15 @@ class Host:
         if packet.protocol == "ICMP":
             toPrint = self.ip + " received " + packet.protocol + " packet with message \"" + packet.data[0] + "\" from " + packet.src
         print(toPrint)
-        if packet.protocol == "UDP":
+        if packet.protocol == "UDP":  # Demux UDP packets by port number
             port_unreachable = True
             for app in self.apps:
                 if "UDP" in app.protocols and app.port == packet.data[1]:
                     app.process_packet(packet)
                     port_unreachable = False
             if port_unreachable:
-                self.simulator.error(self.simulator.nodes[self.node], "Port Unreachable", packet)
-        else: 
+                self.simulator.error(self.simulator.nodes[self.node], "Port Unreachable", packet)  # Generate an ICMP packet if no application is running on this port
+        else:  # For non-UDP packets, check which applications want this protocol's packets
             for app in self.apps:
                 if packet.protocol in app.protocols:
                     app.process_packet(packet)

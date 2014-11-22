@@ -6,6 +6,8 @@ from LinkState import *
 import sys
 
 class Simulator:
+
+    # Constructor
     
     def __init__(self):
         self.packets = []
@@ -14,26 +16,32 @@ class Simulator:
         self.nodes = dict()
         self.routing = None
 
+    # Simulation Step
+
     def step(self):
+
+        # Poll Periodic Routing Update
+
         if self.routing == "Link State":
             for node_name, node in self.nodes.items():
                 node.routing.poll_periodic_update()
         else:    
             self.routing.poll_periodic_update()
-        self.packets = self.packets + self.new_packets
+
+        self.packets = self.packets + self.new_packets  # Add new packets to the packet list to be processed
         self.new_packets = []
         for packet in self.packets:
-            if packet.ttl <= 0:
+            if packet.ttl <= 0: # Discard packet if TTL expires
                 continue
-            packet.cost -= 1
-            packet.ttl -= 1
-            if packet.cost <= 0:
+            packet.cost -= 1  # Subtract the remaning cost
+            packet.ttl -= 1  # Subtract the remaining TTL
+            if packet.cost <= 0:  # Deliver packet when cost hits 0
                 if packet.link_dst in self.nodes:
                     self.nodes[packet.link_dst].process_packet(packet)
                 elif packet.link_src in self.nodes and packet.link_dst in self.nodes[packet.link_src].hosts:
                     self.nodes[packet.link_src].hosts[packet.link_dst].process_packet(packet)
             else:
-                self.next_packets.append(packet)
+                self.next_packets.append(packet)  # Save undelivered packets for next step
         self.packets = self.next_packets
         self.next_packets = []
 
@@ -47,18 +55,24 @@ class Simulator:
         if name in self.nodes:
             print("[ERROR] Node already exists", file=sys.stderr)
             return self.nodes[name]
-        node = Node(self, name, position, ip_prefix)
+        node = Node(self, name, position, ip_prefix)  # Create a new Node
         if self.routing == "Link State":
-            node.routing = LinkState(self, node)
+            node.routing = LinkState(self, node)  # Create a LinkState instance if required
         self.nodes[name] = node
         return node
 
     def add_host(self, ip, node, position):
-        if node in self.nodes and prefix_match(ip, self.nodes[node].ip_prefix):
-            host = Host(self, ip, node, position)
-            self.nodes[node].add_host(host)
+        if node not in self.nodes:
+            print("[ERROR] Invalid Node", file=sys.stderr)
+        elif not prefix_match(ip, self.nodes[node].ip_prefix):
+            print("[ERROR] Invalid IP for this prefix", file=sys.stderr)
+        elif ip in self.nodes[node].hosts:
+            print("[ERROR] IP already exists", file=sys.stderr)
+            return self.nodes[node].hosts[ip]
+        else:
+            host = Host(self, ip, node, position)  # Create a new Host
+            self.nodes[node].add_host(host)  # Add Host to the Node
             return host
-        print("[ERROR] Invalid Node or IP", file=sys.stderr)
         return None
     
     def add_connection(self, n1, n2, cost):
@@ -73,12 +87,12 @@ class Simulator:
 
     def set_routing_protocol(self, protocol):
         if protocol[0] == "Distance Vector":
-            self.routing = DistanceVector(self, protocol[1], protocol[2])
+            self.routing = DistanceVector(self, protocol[1], protocol[2])  # Create a shared DistanceVector instance
         if protocol[0] == "Link State":
             self.routing = "Link State"
 
     def error(self, node, msg, packet):
-        if packet.protocol == "ICMP":
+        if packet.protocol == "ICMP":  # ICMPs cannot generate ICMPs to avoid infinite loop
             return
         data = (msg, packet)
         icmp = Packet("Node", packet.src_type, node.name, packet.src, None, None, "ICMP", 64, None, data)
