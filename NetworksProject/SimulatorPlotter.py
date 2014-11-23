@@ -1,5 +1,5 @@
 import tkinter as tk
-from TraceRoute import *
+from .TraceRoute import *
 
 class NodeInformation(tk.Frame):
 	width = 600

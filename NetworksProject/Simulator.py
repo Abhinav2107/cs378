@@ -1,8 +1,8 @@
-from Node import *
-from Host import *
-from Packet import *
-from DistanceVector import *
-from LinkState import *
+from .Node import *
+from .Host import *
+from .Packet import *
+from .DistanceVector import *
+from .LinkState import *
 import sys
 
 class Simulator:

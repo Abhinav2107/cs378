@@ -1,5 +1,5 @@
-from Application import *
-from Packet import *
+from .Application import *
+from .Packet import *
 import sys
 
 class TraceRoute(Application):

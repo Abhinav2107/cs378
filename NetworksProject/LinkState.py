@@ -1,4 +1,4 @@
-from Packet import *
+from .Packet import *
 import copy
 
 class LinkState:
