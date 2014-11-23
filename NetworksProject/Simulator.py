@@ -61,6 +61,14 @@ class Simulator:
         self.nodes[name] = node
         return node
 
+    def remove_node(self, name):
+        if name not in self.nodes:
+            print("[ERROR] Invalid Node", file=sys.stderr)
+            return
+        for neighbour in self.nodes[name].neighbours:
+            self.update_connection(name, neighbour)
+        self.nodes.pop(name)
+
     def add_host(self, ip, node, position):
         if node not in self.nodes:
             print("[ERROR] Invalid Node", file=sys.stderr)
@@ -74,6 +82,14 @@ class Simulator:
             self.nodes[node].add_host(host)  # Add Host to the Node
             return host
         return None
+
+    def remove_host(self, ip, node):
+        if node not in self.nodes:
+            print("[ERROR] Invalid Node", file=sys.stderr)
+        elif ip not in self.nodes[node].hosts:
+            print("[ERROR] Invalid IP", file=sys.stderr)
+        else:
+            self.nodes[node].remove_host(ip)
     
     def add_connection(self, n1, n2, cost):
         self.update_connection(n1, n2, cost)
