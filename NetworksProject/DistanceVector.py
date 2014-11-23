@@ -17,7 +17,7 @@ class DistanceVector:
         data = []
         for info in packet.data:
             # Check if new prefix or a lower cost path or update from the next hop
-            if info[0] not in node.forwarding_table or info[1] < node.forwarding_table[info[0]][1] or node.forwarding_table[info[0]][0] == packet.link_src:
+            if info[0] not in node.forwarding_table or info[1] + node.neighbours[packet.link_src] < node.forwarding_table[info[0]][1] or node.forwarding_table[info[0]][0] == packet.link_src:
                     cost = node.neighbours[packet.link_src] + info[1]
                     if cost >= DistanceVector.infinity and info[0] in node.forwarding_table:
                         node.forwarding_table.pop(info[0])
