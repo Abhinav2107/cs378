@@ -1,8 +1,13 @@
 import tkinter as tk
-from .TraceRoute import *
+from TraceRoute import *
 
+'''
+class for managing the information Tkinter Window
+'''
 class NodeInformation(tk.Frame):
+	'''dimensions of the tkinter'''
 	width = 600
+	height = 600
 
 	def __init__(self, master=None):
 		tk.Frame.__init__(self, master)
@@ -10,12 +15,15 @@ class NodeInformation(tk.Frame):
 		self.create_widgets()
 
 	def create_widgets(self):
-		self.canvas = tk.Canvas(self, width=self.width, height=450)
+		self.canvas = tk.Canvas(self, width=self.width, height=self.height)
 		self.canvas.pack()
-		
 
 	def create_data(self,node_forwarding_table,node_type):
+		'''
+		create the data to be displayed on the tkinter Window
+		'''
 		self.canvas.delete("all")
+		self.canvas.create_rectangle(0,0,self.width,self.height,fill="#ffffff",width="0.0")
 		y_delta = 15
 		y_pos = y_delta
 		color = ["#e1f5fe","#b3e5fc"]
@@ -46,7 +54,8 @@ class NodeInformation(tk.Frame):
 				+ str(value.src_type) + "      " + str(value.dst) \
 				+ "     " +str(value.dst_type) + "    " \
 				+  str(value.ttl) + "      " + str(value.protocol) \
-				+ "   " + str(value.link_src) + "->" + str(value.link_dst)
+				+ "   " + str(value.link_src) + "->" + str(value.link_dst)\
+				+ "  " + str(value.data)
 
 			self.canvas.create_text(
 				self.width/2, y_pos,
@@ -54,6 +63,10 @@ class NodeInformation(tk.Frame):
 			y_pos += 2*y_delta
 			pos = 1 - pos
 
+
+'''
+The core application Gui
+'''
 class Application(tk.Frame):	
 	circle_radius = 25
 	small_circle_radius = 10
@@ -104,22 +117,54 @@ class Application(tk.Frame):
 		self.step["command"] = self.show_all_packets
 		self.step.pack()
 
-		label_src_ip = tk.Label(self, text='Source IP')
+		self.frame_bottom = tk.Frame(self)
+		label_src_ip = tk.Label(self.frame_bottom, text='Source IP : ')
 		label_src_ip.pack(side="left")
-
-		self.entry_src_ip = tk.Entry(self, textvariable=self.entrytext_src_ip)
+		self.entry_src_ip = tk.Entry(self.frame_bottom, textvariable=self.entrytext_src_ip)
 		self.entry_src_ip.pack(side="left")
-		self.label_dst_ip = tk.Label(self, text='Destination IP')
+		self.label_dst_ip = tk.Label(self.frame_bottom, text='   Destination IP : ')
 		self.label_dst_ip.pack(side="left")
-		self.entry_dst_ip = tk.Entry(self, textvariable=self.entrytext_dst_ip)
+		self.entry_dst_ip = tk.Entry(self.frame_bottom, textvariable=self.entrytext_dst_ip)
 		self.entry_dst_ip.pack(side="left")
 
-		self.step= tk.Button(self)
+		self.step= tk.Button(self.frame_bottom)
 		self.step["text"] = "TRACE ROUTE"
 		self.step["command"] = self.start_traceroute
 		self.step.pack(side="left")
 
+		self.frame_bottom.pack()
+
+
+		self.frame_connection = tk.Frame(self)
+
+		label_update_node_1 = tk.Label(self.frame_connection, text='Node 1 : ')
+		label_update_node_1.pack(side="left")
+		self.entry_update_node_1 = tk.Entry(self.frame_connection, textvariable=self.entrytext_src_ip)
+		self.entry_update_node_1.pack(side="left")
+		self.label_update_node_2 = tk.Label(self.frame_connection, text='  Node 2 : ')
+		self.label_update_node_2.pack(side="left")
+		self.entry_update_node_2 = tk.Entry(self.frame_connection, textvariable=self.entrytext_dst_ip)
+		self.entry_update_node_2.pack(side="left")
+		self.label_update_node_value = tk.Label(self.frame_connection, text='  Value : ')
+		self.label_update_node_value.pack(side="left")
+		self.entry_update_node_value = tk.Entry(self.frame_connection, textvariable=self.entrytext_dst_ip)
+		self.entry_update_node_value.pack(side="left")
+
+		self.step= tk.Button(self.frame_connection)
+		self.step["text"] = "UPDATE CONNECTION"
+		self.step["command"] = self.update_connection
+		self.step.pack(side="left")
+
+		self.step= tk.Button(self.frame_connection)
+		self.step["text"] = "REMOVE CONNECTION"
+		self.step["command"] = self.remove_connection
+		self.step.pack(side="left")
+
+		self.frame_connection.pack()
+
 	def create_graph(self):
+		#width=1000, height=450
+		self.canvas.create_rectangle(0,0,1000,450,fill="#ffffff",width="0.0")
 		self.canvas.bind("<Button-1>", self.mouse_callback)
 		#To Plot the connection between nodes 
 		for keys,node in self.sim.nodes.items():
@@ -206,6 +251,22 @@ class Application(tk.Frame):
 			tr.trace(end_ip)
 		else:
 			print("Could Not Find Host")
+
+	def update_connection(self):
+		start_node = self.entry_update_node_1.get()
+		end_node = self.entry_update_node_2.get()
+		value = int(self.entry_update_node_value.get())
+		self.canvas.delete("all")
+		self.sim.update_connection(start_node,end_node,value)
+		self.create_graph()
+
+	def remove_connection(self):
+		start_node = self.entry_update_node_1.get()
+		end_node = self.entry_update_node_2.get()
+		self.canvas.delete("all")
+		self.sim.update_connection(start_node,end_node,float('inf'))
+		self.create_graph()
+
 
 class NodeInfo:
 	root = tk.Tk()

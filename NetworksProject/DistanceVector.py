@@ -3,14 +3,14 @@ from .Packet import *
 class DistanceVector:
 
     infinity = 16
-    period = 10
 
-    def __init__(self, simulator, split_horizon, poison_reverse):
+    def __init__(self, simulator, split_horizon, poison_reverse,refresh=10):
         self.simulator = simulator
         self.split_horizon = split_horizon
         self.poison_reverse = poison_reverse
         self.nodes = dict()
-        self.count = 10
+        self.count = refresh
+        self.period = refresh
 
     def process_packet(self, packet):
         node = self.simulator.nodes[packet.link_dst]
@@ -43,7 +43,7 @@ class DistanceVector:
 
     def poll_periodic_update(self):  
         self.count += 1
-        if self.count >= DistanceVector.period:  # Check if it's time for a periodic update
+        if self.count >= self.period:  # Check if it's time for a periodic update
             self.count = 0
             for name, node in self.simulator.nodes.items():
                 for neighbour, cost in node.neighbours.items():
