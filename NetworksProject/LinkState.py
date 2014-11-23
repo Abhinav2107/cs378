@@ -121,9 +121,9 @@ class LinkState:
         data = (self.sequence_number, 't', self.node.neighbours)
 
         for neighbour, cost in self.node.neighbours.items():
-            if neighbour != n2:
-                packet = Packet("Node", "Node", self.node.name, None, self.node.name, neighbour, "Link State", 64, cost, data)
-                self.simulator.put_packet(packet)
+            #print("Sending to" + neighbour)
+            packet = Packet("Node", "Node", self.node.name, None, self.node.name, neighbour, "Link State", 64, cost, data)
+            self.simulator.put_packet(packet)
 
         self.dijkstra()
 
