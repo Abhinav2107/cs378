@@ -9,7 +9,7 @@ class DistanceVector:
         self.split_horizon = split_horizon
         self.poison_reverse = poison_reverse
         self.nodes = dict()
-        self.count = refresh
+        self.count = 0
         self.period = refresh
 
     def process_packet(self, packet):
@@ -19,9 +19,10 @@ class DistanceVector:
             # Check if new prefix or a lower cost path or update from the next hop
             if info[0] not in node.forwarding_table or info[1] < node.forwarding_table[info[0]][1] or node.forwarding_table[info[0]][0] == packet.link_src:
                     cost = node.neighbours[packet.link_src] + info[1]
-                    if cost > DistanceVector.infinity and info[0] in node.forwarding_table:
+                    if cost >= DistanceVector.infinity and info[0] in node.forwarding_table:
                         node.forwarding_table.pop(info[0])
-                    else:
+                        data.append((info[0], cost))
+                    elif cost < DistanceVector.infinity:
                         node.forwarding_table[info[0]] = (packet.link_src, cost)
                         data.append((info[0], cost))
 
@@ -61,10 +62,14 @@ class DistanceVector:
                         self.simulator.put_packet(packet)
     
     def update_connection(self, n1, n2, old_cost):
-        if old_cost >= DistanceVector.infinity:
-            return
-        data = []
         node = self.simulator.nodes[n1]
+        data = []
+        if old_cost >= DistanceVector.infinity:  # If it's a new connection
+            for ip_prefix, (next_hop, cost) in node.forwarding_table.items():  # Send the new node all your information
+                data.append((ip_prefix, cost))        
+            packet = Packet("Node", "Node", n1, n2, n1, n2, "Distance Vector", node.neighbours[n2]+1, node.neighbours[n2], data)
+            self.simulator.put_packet(packet);
+            return
         to_pop = []
         for ip_prefix, (next_hop, cost) in node.forwarding_table.items():  # Update costs based on link change
             if next_hop == n2:
