@@ -87,7 +87,7 @@ class Simulator:
 
     def set_routing_protocol(self, protocol):
         if protocol[0] == "Distance Vector":
-            self.routing = DistanceVector(self, protocol[1], protocol[2])  # Create a shared DistanceVector instance
+            self.routing = DistanceVector(self, protocol[1], protocol[2],protocol[3])  # Create a shared DistanceVector instance
         if protocol[0] == "Link State":
             self.routing = "Link State"
 
