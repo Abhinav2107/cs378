@@ -1,7 +1,7 @@
 from NetworksProject import *
 import sys
 
-sim = Simulator()
+sim = Simulator.Simulator()
 
 sim.set_routing_protocol(("Distance Vector", False, False,1000000))
 sim.add_node("A", (1, 3), "1.1.1.0/24")
@@ -24,7 +24,7 @@ sim.update_connection("C", "D", float('inf'))
 
 
 if not ( len(sys.argv) > 1 and sys.argv[1] == "--no-gui" ):
-    gui = Gui(sim)
+    gui = SimulatorPlotter.Gui(sim)
     gui.start()
 
 
