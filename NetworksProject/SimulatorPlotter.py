@@ -103,13 +103,13 @@ class Application(tk.Frame):
 			return
 		position = focus_ele[3]
 		sd = self.circle_radius + 2
-		outline_color = "#1565C0"
+		outline_color = "#AB47BC"
 		if(ftype==0):
 			outline_color = "#ffffff"
 		self.canvas.create_oval(
 			position[0] - sd,position[1]-sd,
 			position[0] + sd,position[1]+sd,
-			fill="",outline=outline_color)
+			fill="",outline=outline_color,width="2.0")
 
 	def mouse_callback(self,event):
 		click = (event.x,event.y)
@@ -142,7 +142,12 @@ class Application(tk.Frame):
 		self.step= tk.Button(self.frame_top,bg=self.top_button_background,fg=self.def_button_color,bd="0.0",padx="10",pady="5")
 		self.step["text"] = "SHOW ALL PACKETS"
 		self.step["command"] = self.show_all_packets
-		self.step.pack(side="left")
+		self.step.pack(side="left",padx="5")
+
+		self.step= tk.Button(self.frame_top,bg=self.top_button_background,fg=self.def_button_color,bd="0.0",padx="10",pady="5")
+		self.step["text"] = "REFRESH UI"
+		self.step["command"] = self.create_graph
+		self.step.pack(side="left",padx="5")
 		self.frame_top.pack(pady="5")
 
 		self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height)
@@ -298,6 +303,10 @@ class Application(tk.Frame):
 			self.canvas.create_text(i*self.scale_factor,10,text=str(i),fill="#aaaaaa")
 			self.canvas.create_line(0,i*self.scale_factor,self.canvas_width,i*self.scale_factor,fill="#eeeeee")
 			self.canvas.create_text(10,i*self.scale_factor,text=str(i),fill="#aaaaaa")
+		if(self.sim.routing == "Link State"):
+			self.canvas.create_text(self.canvas_width-100,30,text="Link State Routing")
+		else:
+			self.canvas.create_text(self.canvas_width-100,30,text="Distance Vector Routing")
 
 		'''Creating the given network'''
 		#To Plot the connection between nodes 
