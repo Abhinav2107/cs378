@@ -369,7 +369,7 @@ class Application(tk.Frame):
 				if(self.focused != None):
 					self.node_info.show_node_info(self.focused[0],self.focused[1],self.focused[2])
 				step_count -= 1
-				
+
 	def show_all_packets(self):
 		self.focus_unfocus(self.focused,0)
 		self.focused = (self.sim,("*","*"),"CONNECTION",(-20,-20))
@@ -415,7 +415,9 @@ class Application(tk.Frame):
 		self.create_graph()
 
 	def remove_node(self):
-		var = 1
+		name = self.entry_create_node_name.get()
+		self.sim.remove_node(name)
+		self.create_graph()
 
 	def add_new_host(self):
 		ip = self.entry_create_host_ip.get()
@@ -426,7 +428,10 @@ class Application(tk.Frame):
 		self.create_graph()
 
 	def remove_host(self):
-		var = 1
+		name = self.entry_create_host_name.get()
+		ip = self.entry_create_host_ip.get()
+		self.sim.remove_host(ip,name)
+		self.create_graph()
 
 class NodeInfo:
 	root = tk.Tk()
