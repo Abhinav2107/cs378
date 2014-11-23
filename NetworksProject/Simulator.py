@@ -65,8 +65,8 @@ class Simulator:
         if name not in self.nodes:
             print("[ERROR] Invalid Node", file=sys.stderr)
             return
-        for neighbour in self.nodes[name].neighbours:
-            self.update_connection(name, neighbour)
+        for neighbour in list(self.nodes[name].neighbours.keys()):
+            self.update_connection(name, neighbour, float("+inf"))
         self.nodes.pop(name)
 
     def add_host(self, ip, node, position):

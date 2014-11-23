@@ -31,7 +31,7 @@ class DistanceVector:
         for neighbour, cost in node.neighbours.items():
             data_to_send = []
             for info in data:
-                if node.forwarding_table[info[0]][0] == neighbour:  # Determine what to send to next hop based on split horizon and poison reverse settings
+                if info[0] in node.forwarding_table and node.forwarding_table[info[0]][0] == neighbour:  # Determine what to send to next hop based on split horizon and poison reverse settings
                     if self.split_horizon and self.poison_reverse:
                         data_to_send.append((info[0], DistanceVector.infinity))
                     elif not self.split_horizon:
