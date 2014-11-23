@@ -1,4 +1,5 @@
 import tkinter as tk
+import time
 from .TraceRoute import *
 
 '''
@@ -6,7 +7,7 @@ class for managing the information Tkinter Window
 '''
 class NodeInformation(tk.Frame):
 	'''dimensions of the tkinter'''
-	width = 600
+	width = 900
 	height = 600
 
 	def __init__(self, master=None):
@@ -82,6 +83,11 @@ class Application(tk.Frame):
 	entrytext_dst_ip = ""
 	canvas_width= 1000
 	canvas_height = 500
+	top_button_background = "#BBDEFB"
+	def_background = "#f1f1f1"
+	def_button_background = "#dddddd"
+	def_color = "#000000"
+	def_button_color = "#000000"
 	
 	def is_click_in(self,position,click):
 		px = int(position[0])
@@ -116,112 +122,172 @@ class Application(tk.Frame):
 				self.focus_unfocus(self.focused,1)
 
 	def __init__(self, master=None):
-		tk.Frame.__init__(self, master)
+		tk.Frame.__init__(self, master,background=self.def_background)
 		self.pack()
 		self.create_widgets()
 
 	def create_widgets(self):
-		self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height)
-		self.canvas.pack()
-		# self.start = tk.Button(self)
+		'''Top Frame'''
+		self.frame_top = tk.Frame(self,background=self.def_background)
 
-		self.step= tk.Button(self)
+		self.entry_step = tk.Entry(self.frame_top,bd="0.0")
+		self.entry_step.pack(side="left",padx="5")
+		self.entry_step.insert(0,"1")
+
+		self.step= tk.Button(self.frame_top,bg=self.top_button_background,fg=self.def_button_color,bd="0.0",padx="10",pady="5")
 		self.step["text"] = "STEP"
 		self.step["command"] = self.step_simulation
-		self.step.pack()
+		self.step.pack(side="left",padx="5")
 
-		self.step= tk.Button(self)
+		self.step= tk.Button(self.frame_top,bg=self.top_button_background,fg=self.def_button_color,bd="0.0",padx="10",pady="5")
 		self.step["text"] = "SHOW ALL PACKETS"
 		self.step["command"] = self.show_all_packets
-		self.step.pack()
+		self.step.pack(side="left")
+		self.frame_top.pack(pady="5")
 
-		self.frame_bottom = tk.Frame(self)
-		label_src_ip = tk.Label(self.frame_bottom, text='Source IP : ')
-		label_src_ip.pack(side="left")
-		self.entry_src_ip = tk.Entry(self.frame_bottom, textvariable=self.entrytext_src_ip)
-		self.entry_src_ip.pack(side="left")
-		self.label_dst_ip = tk.Label(self.frame_bottom, text='   Destination IP : ')
-		self.label_dst_ip.pack(side="left")
-		self.entry_dst_ip = tk.Entry(self.frame_bottom, textvariable=self.entrytext_dst_ip)
-		self.entry_dst_ip.pack(side="left")
+		self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height)
+		self.canvas.pack(pady="1")
+		# self.start = tk.Button(self)
 
-		self.step= tk.Button(self.frame_bottom)
+
+		self.frame_bottom = tk.Frame(self,background=self.def_background)
+		label_src_ip = tk.Label(self.frame_bottom, text='Source IP : ',background=self.def_background,foreground=self.def_color)
+		label_src_ip.pack(side="left",padx="5")
+		self.entry_src_ip = tk.Entry(self.frame_bottom,bd="0.0")
+		self.entry_src_ip.pack(side="left",padx="5")
+		self.label_dst_ip = tk.Label(self.frame_bottom, text='   Destination IP : ',background=self.def_background,foreground=self.def_color)
+		self.label_dst_ip.pack(side="left",padx="5")
+		self.entry_dst_ip = tk.Entry(self.frame_bottom,bd="0.0")
+		self.entry_dst_ip.pack(side="left",padx="5")
+
+		self.step= tk.Button(self.frame_bottom,bg=self.def_button_background,fg=self.def_button_color,bd="0.0",padx="10",pady="5")
 		self.step["text"] = "TRACE ROUTE"
 		self.step["command"] = self.start_traceroute
-		self.step.pack(side="left")
+		self.step.pack(side="left",padx="5")
 
 		self.frame_bottom.pack()
 
+		self.frame_dummy=tk.Frame(self)
+		self.frame_dummy.pack(pady="5")
+
 		'''
-		ADDING NEW NODE
+		ADDING NEW CONNECTION
 		'''
 
-		self.frame_connection = tk.Frame(self)
+		self.frame_connection_1 = tk.Frame(self,background=self.def_background)
+		self.frame_connection_2 = tk.Frame(self,background=self.def_background)
 
-		label_update_node_1 = tk.Label(self.frame_connection, text='Node 1 : ')
-		label_update_node_1.pack(side="left")
-		self.entry_update_node_1 = tk.Entry(self.frame_connection, textvariable=self.entrytext_src_ip)
-		self.entry_update_node_1.pack(side="left")
-		self.label_update_node_2 = tk.Label(self.frame_connection, text='  Node 2 : ')
-		self.label_update_node_2.pack(side="left")
-		self.entry_update_node_2 = tk.Entry(self.frame_connection, textvariable=self.entrytext_dst_ip)
-		self.entry_update_node_2.pack(side="left")
-		self.label_update_node_value = tk.Label(self.frame_connection, text='  Value : ')
-		self.label_update_node_value.pack(side="left")
-		self.entry_update_node_value = tk.Entry(self.frame_connection, textvariable=self.entrytext_dst_ip)
-		self.entry_update_node_value.pack(side="left")
+		label_update_node_1 = tk.Label(self.frame_connection_1, text='Node 1 : ',background=self.def_background,foreground=self.def_color)
+		label_update_node_1.pack(side="left",padx="5")
+		self.entry_update_node_1 = tk.Entry(self.frame_connection_1,bd="0.0")
+		self.entry_update_node_1.pack(side="left",padx="5")
+		self.label_update_node_2 = tk.Label(self.frame_connection_1, text='  Node 2 : ',background=self.def_background,foreground=self.def_color)
+		self.label_update_node_2.pack(side="left",padx="5")
+		self.entry_update_node_2 = tk.Entry(self.frame_connection_1,bd="0.0")
+		self.entry_update_node_2.pack(side="left",padx="5")
+		self.label_update_node_value = tk.Label(self.frame_connection_2, text='  Value : ',background=self.def_background,foreground=self.def_color)
+		self.label_update_node_value.pack(side="left",padx="5")
+		self.entry_update_node_value = tk.Entry(self.frame_connection_2,bd="0.0")
+		self.entry_update_node_value.pack(side="left",padx="5")
 
-		self.step= tk.Button(self.frame_connection)
+		self.step= tk.Button(self.frame_connection_2,bg=self.def_button_background,fg=self.def_button_color,bd="0.0",padx="10",pady="5")
 		self.step["text"] = "UPDATE CONNECTION"
 		self.step["command"] = self.update_connection
-		self.step.pack(side="left")
+		self.step.pack(side="left",padx="5")
 
-		self.step= tk.Button(self.frame_connection)
+		self.step= tk.Button(self.frame_connection_2,bg=self.def_button_background,fg=self.def_button_color,bd="0.0",padx="10",pady="5")
 		self.step["text"] = "REMOVE CONNECTION"
 		self.step["command"] = self.remove_connection
-		self.step.pack(side="left")
+		self.step.pack(side="left",padx="5")
 
-		self.frame_connection.pack()
+		self.frame_connection_1.pack(pady="1")
+		self.frame_connection_2.pack(pady="1")
 
+		self.frame_dummy_2=tk.Frame(self)
+		self.frame_dummy_2.pack(pady="5")
 
 		'''
 		ADDING NEW NODE
 		'''
-		self.frame_node_1 = tk.Frame(self)
-		self.frame_node_2 = tk.Frame(self)
+		self.frame_node_1 = tk.Frame(self,background=self.def_background)
+		self.frame_node_2 = tk.Frame(self,background=self.def_background)
 
-		label_create_node_name = tk.Label(self.frame_node_1, text='Name : ')
-		label_create_node_name.pack(side="left")
-		self.entry_create_node_name = tk.Entry(self.frame_node_1, textvariable=self.entrytext_src_ip)
-		self.entry_create_node_name.pack(side="left")
+		label_create_node_name = tk.Label(self.frame_node_1, text='Name : ',background=self.def_background,foreground=self.def_color)
+		label_create_node_name.pack(side="left",padx="5")
+		self.entry_create_node_name = tk.Entry(self.frame_node_1,bd="0.0")
+		self.entry_create_node_name.pack(side="left",padx="5")
 
-		label_create_node_ip = tk.Label(self.frame_node_2, text='IP/Subnet : ')
-		label_create_node_ip.pack(side="left")
-		self.entry_create_node_ip = tk.Entry(self.frame_node_2, textvariable=self.entrytext_src_ip)
-		self.entry_create_node_ip.pack(side="left")
+		label_create_node_ip = tk.Label(self.frame_node_2, text='IP/Subnet : ',background=self.def_background,foreground=self.def_color)
+		label_create_node_ip.pack(side="left",padx="5")
+		self.entry_create_node_ip = tk.Entry(self.frame_node_2,bd="0.0")
+		self.entry_create_node_ip.pack(side="left",padx="5")
 
-		self.label_create_node_posx = tk.Label(self.frame_node_1, text='  PosX : ')
-		self.label_create_node_posx.pack(side="left")
-		self.entry_create_node_posx = tk.Entry(self.frame_node_1, textvariable=self.entrytext_dst_ip)
-		self.entry_create_node_posx.pack(side="left")
+		self.label_create_node_posx = tk.Label(self.frame_node_1, text='  PosX : ',background=self.def_background,foreground=self.def_color)
+		self.label_create_node_posx.pack(side="left",padx="5")
+		self.entry_create_node_posx = tk.Entry(self.frame_node_1,bd="0.0")
+		self.entry_create_node_posx.pack(side="left",padx="5")
 
-		self.label_create_node_posy = tk.Label(self.frame_node_1, text='  PosY : ')
-		self.label_create_node_posy.pack(side="left")
-		self.entry_create_node_posy = tk.Entry(self.frame_node_1, textvariable=self.entrytext_dst_ip)
-		self.entry_create_node_posy.pack(side="left")
+		self.label_create_node_posy = tk.Label(self.frame_node_1, text='  PosY : ',background=self.def_background,foreground=self.def_color)
+		self.label_create_node_posy.pack(side="left",padx="5")
+		self.entry_create_node_posy = tk.Entry(self.frame_node_1,bd="0.0")
+		self.entry_create_node_posy.pack(side="left",padx="5")
 
-		self.step= tk.Button(self.frame_node_2)
+		self.step= tk.Button(self.frame_node_2,bg=self.def_button_background,fg=self.def_button_color,bd="0.0",padx="10",pady="5")
 		self.step["text"] = "ADD NODE"
 		self.step["command"] = self.add_new_node
-		self.step.pack(side="left")
+		self.step.pack(side="left",padx="5")
 
-		self.step= tk.Button(self.frame_node_2)
+		self.step= tk.Button(self.frame_node_2,bg=self.def_button_background,fg=self.def_button_color,bd="0.0",padx="10",pady="5")
 		self.step["text"] = "REMOVE NODE"
 		self.step["command"] = self.remove_node
-		self.step.pack(side="left")
+		self.step.pack(side="left",padx="5")
 
-		self.frame_node_1.pack()
-		self.frame_node_2.pack()
+		self.frame_node_1.pack(pady="1")
+		self.frame_node_2.pack(pady="1")
+
+		self.frame_dummy=tk.Frame(self)
+		self.frame_dummy.pack(pady="5")
+		'''
+		ADDING NEW NODE
+		'''
+		self.frame_host_1 = tk.Frame(self,background=self.def_background)
+		self.frame_host_2 = tk.Frame(self,background=self.def_background)
+
+		label_create_host_name = tk.Label(self.frame_host_1, text='Parent : ',background=self.def_background,foreground=self.def_color)
+		label_create_host_name.pack(side="left",padx="5")
+		self.entry_create_host_name = tk.Entry(self.frame_host_1,bd="0.0")
+		self.entry_create_host_name.pack(side="left",padx="5")
+
+		label_create_host_ip = tk.Label(self.frame_host_2, text='IP : ',background=self.def_background,foreground=self.def_color)
+		label_create_host_ip.pack(side="left",padx="5")
+		self.entry_create_host_ip = tk.Entry(self.frame_host_2,bd="0.0")
+		self.entry_create_host_ip.pack(side="left",padx="5")
+
+		self.label_create_host_posx = tk.Label(self.frame_host_1, text='  PosX : ',background=self.def_background,foreground=self.def_color)
+		self.label_create_host_posx.pack(side="left",padx="5")
+		self.entry_create_host_posx = tk.Entry(self.frame_host_1,bd="0.0")
+		self.entry_create_host_posx.pack(side="left",padx="5")
+
+		self.label_create_host_posy = tk.Label(self.frame_host_1, text='  PosY : ',background=self.def_background,foreground=self.def_color)
+		self.label_create_host_posy.pack(side="left",padx="5")
+		self.entry_create_host_posy = tk.Entry(self.frame_host_1,bd="0.0")
+		self.entry_create_host_posy.pack(side="left",padx="5")
+
+		self.step= tk.Button(self.frame_host_2,bg=self.def_button_background,fg=self.def_button_color,bd="0.0",padx="10",pady="5")
+		self.step["text"] = "ADD HOST"
+		self.step["command"] = self.add_new_host
+		self.step.pack(side="left",padx="5")
+
+		self.step= tk.Button(self.frame_host_2,bg=self.def_button_background,fg=self.def_button_color,bd="0.0",padx="10",pady="5")
+		self.step["text"] = "REMOVE HOST"
+		self.step["command"] = self.remove_host
+		self.step.pack(side="left",padx="5")
+
+		self.frame_host_1.pack(pady="1")
+		self.frame_host_2.pack(pady="1")
+
+		self.frame_dummy=tk.Frame(self)
+		self.frame_dummy.pack(pady="5")
 
 	def create_graph(self):
 		'''Resetting the canvas background'''
@@ -296,10 +362,14 @@ class Application(tk.Frame):
 			self.callback_position[keys] = (nx,ny,rd,"NODE")
 
 	def step_simulation(self):
+		step_count = int(self.entry_step.get())
 		if(self.sim != None):
-			self.sim.step()
-			if(self.focused != None):
-				self.node_info.show_node_info(self.focused[0],self.focused[1],self.focused[2])
+			while(step_count != 0):
+				self.sim.step()
+				if(self.focused != None):
+					self.node_info.show_node_info(self.focused[0],self.focused[1],self.focused[2])
+				step_count -= 1
+				
 	def show_all_packets(self):
 		self.focus_unfocus(self.focused,0)
 		self.focused = (self.sim,("*","*"),"CONNECTION",(-20,-20))
@@ -347,6 +417,16 @@ class Application(tk.Frame):
 	def remove_node(self):
 		var = 1
 
+	def add_new_host(self):
+		ip = self.entry_create_host_ip.get()
+		px = int(self.entry_create_host_posx.get())
+		py = int(self.entry_create_host_posy.get())
+		name = self.entry_create_host_name.get()
+		self.sim.add_host(ip,name, (px, py))
+		self.create_graph()
+
+	def remove_host(self):
+		var = 1
 
 class NodeInfo:
 	root = tk.Tk()
@@ -384,8 +464,6 @@ class NodeInfo:
 			self.app.create_data(simulator.nodes[node_key].forwarding_table,node_type)
 		if(node_type=="CONNECTION"):
 			self.app.create_data(self.get_packets_in(simulator,node_key[0],node_key[1]),node_type)
-
-
 
 class Gui:
 	root = tk.Tk() 
