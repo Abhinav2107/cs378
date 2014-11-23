@@ -80,6 +80,8 @@ class Application(tk.Frame):
 	focused = None
 	entrytext_src_ip = ""
 	entrytext_dst_ip = ""
+	canvas_width= 1000
+	canvas_height = 500
 	
 	def is_click_in(self,position,click):
 		px = int(position[0])
@@ -90,12 +92,28 @@ class Application(tk.Frame):
 		dist_sqr = (px - cx)*(px - cx) + (py - cy)*(py - cy)
 		return dist_sqr <= rd*rd
 
+	def focus_unfocus(self,focus_ele,ftype):
+		if(focus_ele == None):
+			return
+		position = focus_ele[3]
+		sd = self.circle_radius + 2
+		outline_color = "#1565C0"
+		if(ftype==0):
+			outline_color = "#ffffff"
+		self.canvas.create_oval(
+			position[0] - sd,position[1]-sd,
+			position[0] + sd,position[1]+sd,
+			fill="",outline=outline_color)
+
 	def mouse_callback(self,event):
 		click = (event.x,event.y)
 		for key,pstn in self.callback_position.items():
 			if(self.is_click_in(pstn,click)):
+				if(self.focused != None):
+					self.focus_unfocus(self.focused,0)
 				self.node_info.show_node_info(self.sim,key,pstn[3])
-				self.focused = (self.sim,key,pstn[3])
+				self.focused = (self.sim,key,pstn[3],pstn)
+				self.focus_unfocus(self.focused,1)
 
 	def __init__(self, master=None):
 		tk.Frame.__init__(self, master)
@@ -103,7 +121,7 @@ class Application(tk.Frame):
 		self.create_widgets()
 
 	def create_widgets(self):
-		self.canvas = tk.Canvas(self, width=1000, height=450)
+		self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height)
 		self.canvas.pack()
 		# self.start = tk.Button(self)
 
@@ -134,6 +152,9 @@ class Application(tk.Frame):
 
 		self.frame_bottom.pack()
 
+		'''
+		ADDING NEW NODE
+		'''
 
 		self.frame_connection = tk.Frame(self)
 
@@ -162,10 +183,57 @@ class Application(tk.Frame):
 
 		self.frame_connection.pack()
 
+
+		'''
+		ADDING NEW NODE
+		'''
+		self.frame_node_1 = tk.Frame(self)
+		self.frame_node_2 = tk.Frame(self)
+
+		label_create_node_name = tk.Label(self.frame_node_1, text='Name : ')
+		label_create_node_name.pack(side="left")
+		self.entry_create_node_name = tk.Entry(self.frame_node_1, textvariable=self.entrytext_src_ip)
+		self.entry_create_node_name.pack(side="left")
+
+		label_create_node_ip = tk.Label(self.frame_node_2, text='IP/Subnet : ')
+		label_create_node_ip.pack(side="left")
+		self.entry_create_node_ip = tk.Entry(self.frame_node_2, textvariable=self.entrytext_src_ip)
+		self.entry_create_node_ip.pack(side="left")
+
+		self.label_create_node_posx = tk.Label(self.frame_node_1, text='  PosX : ')
+		self.label_create_node_posx.pack(side="left")
+		self.entry_create_node_posx = tk.Entry(self.frame_node_1, textvariable=self.entrytext_dst_ip)
+		self.entry_create_node_posx.pack(side="left")
+
+		self.label_create_node_posy = tk.Label(self.frame_node_1, text='  PosY : ')
+		self.label_create_node_posy.pack(side="left")
+		self.entry_create_node_posy = tk.Entry(self.frame_node_1, textvariable=self.entrytext_dst_ip)
+		self.entry_create_node_posy.pack(side="left")
+
+		self.step= tk.Button(self.frame_node_2)
+		self.step["text"] = "ADD NODE"
+		self.step["command"] = self.add_new_node
+		self.step.pack(side="left")
+
+		self.step= tk.Button(self.frame_node_2)
+		self.step["text"] = "REMOVE NODE"
+		self.step["command"] = self.remove_node
+		self.step.pack(side="left")
+
+		self.frame_node_1.pack()
+		self.frame_node_2.pack()
+
 	def create_graph(self):
-		#width=1000, height=450
-		self.canvas.create_rectangle(0,0,1000,450,fill="#ffffff",width="0.0")
+		'''Resetting the canvas background'''
+		self.canvas.create_rectangle(0,0,self.canvas_width,self.canvas_height,fill="#ffffff",width="0.0")
 		self.canvas.bind("<Button-1>", self.mouse_callback)
+		for i in range(1,10):
+			self.canvas.create_line(i*self.scale_factor,0,i*self.scale_factor,self.canvas_height,fill="#eeeeee")
+			self.canvas.create_text(i*self.scale_factor,10,text=str(i),fill="#aaaaaa")
+			self.canvas.create_line(0,i*self.scale_factor,self.canvas_width,i*self.scale_factor,fill="#eeeeee")
+			self.canvas.create_text(10,i*self.scale_factor,text=str(i),fill="#aaaaaa")
+
+		'''Creating the given network'''
 		#To Plot the connection between nodes 
 		for keys,node in self.sim.nodes.items():
 			for neighbour,cost in node.neighbours.items():
@@ -233,7 +301,8 @@ class Application(tk.Frame):
 			if(self.focused != None):
 				self.node_info.show_node_info(self.focused[0],self.focused[1],self.focused[2])
 	def show_all_packets(self):
-		self.focused = (self.sim,("*","*"),"CONNECTION")
+		self.focus_unfocus(self.focused,0)
+		self.focused = (self.sim,("*","*"),"CONNECTION",(-20,-20))
 		self.node_info.show_node_info(self.focused[0],self.focused[1],self.focused[2])
 
 	def start_traceroute(self):
@@ -266,6 +335,17 @@ class Application(tk.Frame):
 		self.canvas.delete("all")
 		self.sim.update_connection(start_node,end_node,float('inf'))
 		self.create_graph()
+
+	def add_new_node(self):
+		ip = self.entry_create_node_ip.get()
+		px = int(self.entry_create_node_posx.get())
+		py = int(self.entry_create_node_posy.get())
+		name = self.entry_create_node_name.get()
+		self.sim.add_node(name, (px, py), ip)
+		self.create_graph()
+
+	def remove_node(self):
+		var = 1
 
 
 class NodeInfo:
