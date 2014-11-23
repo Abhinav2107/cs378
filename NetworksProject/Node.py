@@ -48,7 +48,7 @@ class Node:
         self.hosts.pop(ip)
     
     def process_packet(self, packet):
-        if packet.dst_type == "Node" and packet.dst == self.name and packet.link_src in self.neighbours:  # Packet intended for this Node
+        if (packet.dst == None and packet.link_dst == self.name) or (packet.dst_type == "Node" and packet.dst == self.name and packet.link_src in self.neighbours):  # Packet intended for this Node
             print(self.name + " Received " + packet.protocol + " Packet from " + packet.src)
             if packet.protocol == "Distance Vector" or packet.protocol == "Link State":  # Let the routing instance handle routing packets
                 self.routing.process_packet(packet)
