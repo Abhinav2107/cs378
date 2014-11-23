@@ -1,5 +1,5 @@
 import tkinter as tk
-from TraceRoute import *
+from .TraceRoute import *
 
 '''
 class for managing the information Tkinter Window
