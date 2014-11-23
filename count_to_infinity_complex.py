@@ -1,7 +1,7 @@
 from NetworksProject import *
 import sys
 
-sim = Simulator.SimulatorPlotter.Simulator()
+sim = Simulator.Simulator()
 
 sim.set_routing_protocol(("Distance Vector", False, False,1000000))
 sim.add_node("A", (1, 3), "1.1.1.0/24")
