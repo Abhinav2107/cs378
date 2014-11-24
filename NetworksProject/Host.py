@@ -33,3 +33,7 @@ class Host:
 
     def remove_app(self, app):
         self.apps.remove(app)
+
+    def poll_periodic_update(self):
+        for app in self.apps:
+            app.poll_periodic_update()

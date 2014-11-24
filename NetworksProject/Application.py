@@ -13,3 +13,6 @@ class Application:
     
     def process_packet(self, packet):
         return
+
+    def poll_periodic_update(self):
+        return

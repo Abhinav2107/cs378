@@ -28,6 +28,10 @@ class Simulator:
         else:    
             self.routing.poll_periodic_update()
 
+        for node_name, node in self.nodes.items():
+            for ip, host in node.hosts.items():
+                host.poll_periodic_update()
+
         self.packets = self.packets + self.new_packets  # Add new packets to the packet list to be processed
         self.new_packets = []
         for packet in self.packets:
