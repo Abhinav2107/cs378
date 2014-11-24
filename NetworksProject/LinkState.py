@@ -3,11 +3,11 @@ import copy
 import heapq
 
 class LinkState:
-    max_timeout = 11    # the timeout value for the link state entries
+        
     infinity = 16
-    period = 10
+    
 
-    def __init__(self, simulator, node):
+    def __init__(self, simulator, node,refresh,timeout):
         self.node = node
         self.simulator = simulator
         self.nodes = dict()                 # the adjacency list for the graph along with link costs
@@ -16,6 +16,8 @@ class LinkState:
         self.sequence = dict()              # sequence number of last received link state
         self.count = 10
         self.sequence_number = 0
+        self.max_timeout = timeout # the timeout value for the link state entries
+        self.period = refresh   
 
     def check(self, packet):
         to_pop = []
@@ -29,7 +31,7 @@ class LinkState:
         for neighbour, cost in packet.data[2].items():
             if neighbour not in self.nodes:
                 self.nodes[neighbour] = dict()
-                self.timeout[neighbour] = LinkState.max_timeout
+                self.timeout[neighbour] =self.max_timeout
                 self.sequence[neighbour] = 0
 
             self.nodes[neighbour][packet.src] = cost
@@ -51,13 +53,13 @@ class LinkState:
             return
         if packet.src not in self.nodes:                        # discover new node in graph
             self.nodes[packet.src] = dict()
-            self.timeout[packet.src] = LinkState.max_timeout
+            self.timeout[packet.src] = self.max_timeout
             self.sequence[packet.src] = packet.data[0]
             self.check(packet)
             self.forward(packet)
 
         elif packet.data[0] > self.sequence[packet.src]:        # retransmission from known node
-            self.timeout[packet.src] = LinkState.max_timeout
+            self.timeout[packet.src] = self.max_timeout
             self.sequence[packet.src] = packet.data[0]
 
             if packet.data[1] != 'p':                           # use the new link state given by triggered update 
@@ -89,7 +91,7 @@ class LinkState:
             self.timeout.pop(neighbour)
 
         self.count += 1                                         # maintain count from last periodic update
-        if self.count >= LinkState.period:
+        if self.count >= self.period:
             self.count = 0 
             #self.graph()
             self.sequence_number += 1

@@ -1,5 +1,6 @@
-from NetworksProject import *
 import sys
+sys.path.insert(0, '../')
+from NetworksProject import *
 
 sim = Simulator.Simulator()
 

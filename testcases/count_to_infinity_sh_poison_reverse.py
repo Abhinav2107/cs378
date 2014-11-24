@@ -1,9 +1,10 @@
-from NetworksProject import *
 import sys
+sys.path.insert(0, '../')
+from NetworksProject import *
 
 sim = Simulator.Simulator()
 
-sim.set_routing_protocol(("Distance Vector", False, False,1000000))
+sim.set_routing_protocol(("Distance Vector", True, True,1000000))
 sim.add_node("A", (1, 3), "1.1.1.0/24")
 sim.add_node("B", (3, 3), "2.2.2.0/24")
 sim.add_node("C", (5, 3), "3.3.3.0/24")

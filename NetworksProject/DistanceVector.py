@@ -2,7 +2,7 @@ from .Packet import *
 
 class DistanceVector:
 
-    infinity = 16
+    infinity = 32
 
     def __init__(self, simulator, split_horizon, poison_reverse,refresh=10):
         self.simulator = simulator

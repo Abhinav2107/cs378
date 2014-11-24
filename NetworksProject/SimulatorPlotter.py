@@ -8,12 +8,13 @@ class for managing the information Tkinter Window
 class NodeInformation(tk.Frame):
 	'''dimensions of the tkinter'''
 	width = 900
-	height = 600
+	height = 900
 
 	def __init__(self, master=None):
 		tk.Frame.__init__(self, master)
 		self.pack()
 		self.create_widgets()
+
 
 	def create_widgets(self):
 		self.canvas = tk.Canvas(self, width=self.width, height=self.height)
@@ -82,13 +83,16 @@ class Application(tk.Frame):
 	entrytext_src_ip = ""
 	entrytext_dst_ip = ""
 	canvas_width= 1000
-	canvas_height = 500
+	canvas_height = 600
 	top_button_background = "#BBDEFB"
 	def_background = "#f1f1f1"
 	def_button_background = "#dddddd"
 	def_color = "#000000"
 	def_button_color = "#000000"
-	
+
+	'''
+	checks if the mouse click was within an element
+	'''	
 	def is_click_in(self,position,click):
 		px = int(position[0])
 		py = int(position[1])
@@ -98,6 +102,9 @@ class Application(tk.Frame):
 		dist_sqr = (px - cx)*(px - cx) + (py - cy)*(py - cy)
 		return dist_sqr <= rd*rd
 
+	'''
+	focuses or unfocuses an element
+	'''
 	def focus_unfocus(self,focus_ele,ftype):
 		if(focus_ele == None):
 			return
@@ -111,6 +118,9 @@ class Application(tk.Frame):
 			position[0] + sd,position[1]+sd,
 			fill="",outline=outline_color,width="2.0")
 
+	'''
+	mouse callback_position for focus clicks
+	'''
 	def mouse_callback(self,event):
 		click = (event.x,event.y)
 		for key,pstn in self.callback_position.items():
@@ -126,6 +136,9 @@ class Application(tk.Frame):
 		self.pack()
 		self.create_widgets()
 
+	'''
+	creates the buttons and panels
+	'''
 	def create_widgets(self):
 		'''Top Frame'''
 		self.frame_top = tk.Frame(self,background=self.def_background)
@@ -146,7 +159,17 @@ class Application(tk.Frame):
 
 		self.step= tk.Button(self.frame_top,bg=self.top_button_background,fg=self.def_button_color,bd="0.0",padx="10",pady="5")
 		self.step["text"] = "REFRESH UI"
-		self.step["command"] = self.create_graph
+		self.step["command"] = self.refresh_canvas
+		self.step.pack(side="left",padx="5")
+
+		self.step= tk.Button(self.frame_top,bg=self.top_button_background,fg=self.def_button_color,bd="0.0",padx="10",pady="5")
+		self.step["text"] = "ZOOM IN"
+		self.step["command"] = self.zoom_in
+		self.step.pack(side="left",padx="5")
+
+		self.step= tk.Button(self.frame_top,bg=self.top_button_background,fg=self.def_button_color,bd="0.0",padx="10",pady="5")
+		self.step["text"] = "ZOOM OUT"
+		self.step["command"] = self.zoom_out
 		self.step.pack(side="left",padx="5")
 		self.frame_top.pack(pady="5")
 
@@ -298,7 +321,7 @@ class Application(tk.Frame):
 		'''Resetting the canvas background'''
 		self.canvas.create_rectangle(0,0,self.canvas_width,self.canvas_height,fill="#ffffff",width="0.0")
 		self.canvas.bind("<Button-1>", self.mouse_callback)
-		for i in range(1,10):
+		for i in range(1,2+int(max(self.canvas_height,self.canvas_width)/self.scale_factor)):
 			self.canvas.create_line(i*self.scale_factor,0,i*self.scale_factor,self.canvas_height,fill="#eeeeee")
 			self.canvas.create_text(i*self.scale_factor,10,text=str(i),fill="#aaaaaa")
 			self.canvas.create_line(0,i*self.scale_factor,self.canvas_width,i*self.scale_factor,fill="#eeeeee")
@@ -370,6 +393,9 @@ class Application(tk.Frame):
 				text=node.name)
 			self.callback_position[keys] = (nx,ny,rd,"NODE")
 
+	'''
+	Step through the simulation
+	'''
 	def step_simulation(self):
 		step_count = int(self.entry_step.get())
 		if(self.sim != None):
@@ -442,6 +468,25 @@ class Application(tk.Frame):
 		self.sim.remove_host(ip,name)
 		self.create_graph()
 
+	def refresh_canvas(self):
+		Application.circle_radius = 25
+		Application.scale_factor = 100
+		Application.small_circle_radius = 10
+		self.create_graph()
+
+	def zoom_in(self):
+		Application.circle_radius *= 1.1
+		Application.scale_factor *= 1.1
+		Application.small_circle_radius += 1.1
+		self.create_graph()
+
+	def zoom_out(self):
+		Application.circle_radius /= 1.1
+		Application.scale_factor /= 1.1
+		Application.small_circle_radius /= 1.1
+		self.create_graph()
+
+
 class NodeInfo:
 	root = tk.Tk()
 	app = None
@@ -452,6 +497,7 @@ class NodeInfo:
 	def start(self):
 		self.app.mainloop()
 
+	'''gets packets inside a link'''
 	def get_packets_in(self,simulator,host1,host2):
 		packet_list = {}
 		count = 0

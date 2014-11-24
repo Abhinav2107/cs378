@@ -57,7 +57,7 @@ class Simulator:
             return self.nodes[name]
         node = Node(self, name, position, ip_prefix)  # Create a new Node
         if self.routing == "Link State":
-            node.routing = LinkState(self, node)  # Create a LinkState instance if required
+            node.routing = LinkState(self, node,self.link_state_refresh,self.link_state_refresh+5)  # Create a LinkState instance if required
         self.nodes[name] = node
         return node
 
@@ -104,8 +104,11 @@ class Simulator:
     def set_routing_protocol(self, protocol):
         if protocol[0] == "Distance Vector":
             self.routing = DistanceVector(self, protocol[1], protocol[2],protocol[3])  # Create a shared DistanceVector instance
-        if protocol[0] == "Link State":
+        elif protocol[0] == "Link State":
             self.routing = "Link State"
+            self.link_state_refresh = protocol[1]
+        else:
+            print("[ERROR] Invalid Routing Protocol",file=sys.stderr)
 
     def error(self, node, msg, packet):
         if packet.protocol == "ICMP":  # ICMPs cannot generate ICMPs to avoid infinite loop
